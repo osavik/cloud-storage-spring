@@ -25,18 +25,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/signup", "/css/**","/js/**").permitAll()
+                .antMatchers("/h2/**","/signup", "/css/**","/js/**").permitAll()
                 .anyRequest().authenticated();
 
         http.formLogin()
                 .loginPage("/login")
                 .permitAll();
 
+        // TODO fix it
         http.logout()
-                .logoutSuccessUrl("/login");
+                .logoutSuccessUrl("/login?logout");
 
         http.formLogin()
                 .defaultSuccessUrl("/home", true);
+
+        // TODO delete in final version
+        // it's not safe.
+        http.csrf().disable();
+        http.headers().frameOptions().disable();
 
     }
 }

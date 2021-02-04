@@ -24,8 +24,10 @@ public class LoginController {
     @GetMapping()
     public String loginView(){
         // TODO delete it - just for testing purpose
-        User user  = new User(null, "vik", null, "vik", "vik", "vik");
-        userService.createUser(user);
+        if (userService.isUsernameAvailable("vik")){
+            User user  = new User(null, "vik", null, "vik", "vik", "vik");
+            userService.createUser(user);
+        }
 
         return "login";
     }

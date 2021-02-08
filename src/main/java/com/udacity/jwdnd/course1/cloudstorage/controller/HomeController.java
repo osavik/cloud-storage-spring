@@ -5,31 +5,21 @@ import com.udacity.jwdnd.course1.cloudstorage.service.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.service.NoteService;
 import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
-import com.udacity.jwdnd.course1.cloudstorage.service.facade.IAuthenticationFacade;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @Controller
-@RequestMapping("/home")
 public class HomeController {
 
-    private FileService fileService;
-    private CredentialService credentialService;
-    private NoteService noteService;
-    private UserService userService;
-
-    @Autowired
-    private IAuthenticationFacade authenticationFacade;
-
+    private final FileService fileService;
+    private final CredentialService credentialService;
+    private final NoteService noteService;
+    private final UserService userService;
 
     public HomeController(FileService fileService, CredentialService credentialService,
                           NoteService noteService, UserService userService){
@@ -39,13 +29,21 @@ public class HomeController {
         this.userService = userService;
     }
 
-    @GetMapping()
-    public String showHomePage(){
+    @GetMapping("/home")
+    public String showHomePage(Model model){
+
+        User user = userService.getLoggedInUser();
+        if(user == null){
+            return "login";
+        }
+
+        model.addAttribute("files", fileService.getAllFiles(user.getUserId()));
+
         return "home";
     }
 
     // TODO handle file size limit
-    @PostMapping("/uploadfile")
+    @PostMapping("/file/upload")
     public String uploadFile(@RequestParam("fileUpload") MultipartFile file, Model model){
         boolean successfulUpload = false;
 
@@ -57,26 +55,39 @@ public class HomeController {
 
         if (file.isEmpty()){
             model.addAttribute("file_upload_hint", true);
-            return "home";
-        }
-
-        if (!fileService.isFileNameUniqueForUser(user.getUserId(), file.getOriginalFilename())){
-            model.addAttribute("file_upload_error_name", true);
         }else{
-            try {
-                int rowsAdded = fileService.saveFile(file, user.getUserId());
-                if (rowsAdded > 0){ // file was inserted in DB
-                    successfulUpload = true;
+            if (!fileService.isFileNameUniqueForUser(user.getUserId(), file.getOriginalFilename())){
+                model.addAttribute("file_upload_error_name", true);
+            }else{
+                try {
+                    int rowsAdded = fileService.saveFile(file, user.getUserId());
+                    if (rowsAdded > 0){ // file was inserted in DB
+                        successfulUpload = true;
+                    }
+                } catch (Exception e) {
+                    model.addAttribute("file_upload_error", true);
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                model.addAttribute("file_upload_error", true);
-                e.printStackTrace();
             }
         }
 
         model.addAttribute("file_upload_successful", successfulUpload);
+        model.addAttribute("files", fileService.getAllFiles(user.getUserId()));
 
         return "home";
     }
+
+    @GetMapping("/file/delete/{id}")
+    public String deleteFile(@PathVariable(name = "id") String id, Model model){
+        System.out.println("file id to delete = " + id);
+
+        User user = userService.getLoggedInUser();
+        fileService.deleteFileByFileIdAndUserId(Integer.valueOf(id), user.getUserId());
+
+        return "redirect:/home";
+    }
+
+
+
 
 }

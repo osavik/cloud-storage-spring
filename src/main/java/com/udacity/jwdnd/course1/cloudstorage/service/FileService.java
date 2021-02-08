@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public class FileService {
 
-    private FileMapper fileMapper;
+    private final FileMapper fileMapper;
 
     public FileService(FileMapper fileMapper){
         this.fileMapper = fileMapper;
@@ -34,6 +34,10 @@ public class FileService {
 
     public boolean isFileNameUniqueForUser(Integer userId, String filename){
         return getFileByUserIdAndFilename(userId, filename) == null;
+    }
+
+    public void deleteFileByFileIdAndUserId(Integer fileId, Integer userId){
+        fileMapper.deleteFileByFileIdAndUserId(fileId, userId);
     }
 
 

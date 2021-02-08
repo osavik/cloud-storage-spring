@@ -23,7 +23,7 @@ public interface FileMapper {
     int insertFile(File file);
 
     // delete file by fileId
-    @Delete("DELETE FROM FILES WHERE fileId = #{fileId}")
-    void deleteFileByFileId(Integer fileId);
+    @Delete("DELETE FROM FILES WHERE fileId = #{fileId} AND userid = #{userId}")
+    void deleteFileByFileIdAndUserId(Integer fileId, Integer userId);
 
 }

@@ -14,7 +14,11 @@ public interface FileMapper {
 
     // get file by filename and userid
     @Select("SELECT * FROM FILES WHERE userid = #{userId} AND filename = #{fileName}")
-    File getFileByNameAndByUserId(String fileName, Integer userId);
+    File getFileByNameAndUserId(Integer userId, String fileName);
+
+    // get file by filename and userid
+    @Select("SELECT * FROM FILES WHERE userid = #{userId} AND fileid = #{fileId}")
+    File getFileByFileIdAndUserId(Integer userId, Integer fileId);
 
     // insert file
     @Insert("INSERT INTO FILES (filename, contenttype, filesize, userid, filedata)" +
@@ -24,6 +28,6 @@ public interface FileMapper {
 
     // delete file by fileId
     @Delete("DELETE FROM FILES WHERE fileId = #{fileId} AND userid = #{userId}")
-    void deleteFileByFileIdAndUserId(Integer fileId, Integer userId);
+    void deleteFileByFileIdAndUserId(Integer userId, Integer fileId);
 
 }

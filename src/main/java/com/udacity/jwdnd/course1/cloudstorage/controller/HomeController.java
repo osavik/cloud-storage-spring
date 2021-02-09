@@ -1,10 +1,16 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.service.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.service.NoteService;
 import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -77,14 +83,34 @@ public class HomeController {
         return "home";
     }
 
-    @GetMapping("/file/delete/{id}")
-    public String deleteFile(@PathVariable(name = "id") String id, Model model){
-        System.out.println("file id to delete = " + id);
+    @GetMapping("/file/delete/{fileId}")
+    public String deleteFile(@PathVariable String fileId){
+        System.out.println("file id to delete = " + fileId);
 
         User user = userService.getLoggedInUser();
-        fileService.deleteFileByFileIdAndUserId(Integer.valueOf(id), user.getUserId());
+        fileService.deleteFileByFileIdAndUserId(user.getUserId(), Integer.valueOf(fileId));
 
         return "redirect:/home";
+    }
+
+
+    @GetMapping("/file/view/{fileId}")
+    public ResponseEntity<Resource> getFile(@PathVariable String fileId){
+        System.out.println("file id to view = " + fileId);
+
+        User user = userService.getLoggedInUser();
+        File file = fileService.getFileByUserIdAndFileId(user.getUserId(), Integer.valueOf(fileId));
+
+        if (file != null){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(file.getContentType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
+                            + file.getFileName() + "\"")
+                    .body(new ByteArrayResource(file.getFileData()));
+        }else{
+            // TODO give user some hint etc
+            return null;
+        }
     }
 
 

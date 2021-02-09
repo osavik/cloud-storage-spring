@@ -29,15 +29,19 @@ public class FileService {
     }
 
     public File getFileByUserIdAndFilename(Integer userId, String filename){
-        return fileMapper.getFileByNameAndByUserId(filename, userId);
+        return fileMapper.getFileByNameAndUserId(userId, filename);
+    }
+
+    public File getFileByUserIdAndFileId(Integer userId, Integer fileId){
+        return fileMapper.getFileByFileIdAndUserId(userId, fileId);
     }
 
     public boolean isFileNameUniqueForUser(Integer userId, String filename){
         return getFileByUserIdAndFilename(userId, filename) == null;
     }
 
-    public void deleteFileByFileIdAndUserId(Integer fileId, Integer userId){
-        fileMapper.deleteFileByFileIdAndUserId(fileId, userId);
+    public void deleteFileByFileIdAndUserId(Integer userId, Integer fileId){
+        fileMapper.deleteFileByFileIdAndUserId(userId, fileId);
     }
 
 

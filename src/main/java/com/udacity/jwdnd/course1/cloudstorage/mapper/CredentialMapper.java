@@ -19,16 +19,17 @@ public interface CredentialMapper {
     List<Credential> getAllCredentials(Integer userId);
 
     // get credentials by url & userId
-    @Select("SELECT * FROM CREDENTIALS WHERE url = #{url} AND userid = #{userId}")
-    Credential getCredentialByUrlAndUserId(String url, Integer userId);
+    @Select("SELECT * FROM CREDENTIALS WHERE credentialid = #{credentialId} AND userid = #{userId}")
+    Credential getCredentialByCredentialIdAndUserId(Integer userId, Integer credentialId);
 
     // delete credential by credentialId
-    @Delete("DELETE FROM CREDENTIALS WHERE credentialid = #{credentialId}")
-    void deleteCredentialById(Integer credentialId);
+    @Delete("DELETE FROM CREDENTIALS WHERE credentialid = #{credentialId} AND userid = #{userId}")
+    void deleteCredentialByCredentialIdAndUserId(Integer userId, Integer credentialId);
 
     // update credential by credentialId
     @Update("UPDATE CREDENTIALS SET url = #{url}, username = #{username}, key = #{key}, password = #{password}" +
-            " WHERE credentialId = #{credentialId}")
-    Integer updateCredentialById(Integer credentialId, String url, String username, String key, String password);
+            " WHERE credentialId = #{credentialId} AND userid = #{userId}")
+    int updateCredentialByCredentialIdAndUserId(Integer userId, Integer credentialId,
+                                                String url, String username, String key, String password);
 
 }

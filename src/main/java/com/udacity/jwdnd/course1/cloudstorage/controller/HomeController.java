@@ -1,12 +1,10 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
+import com.udacity.jwdnd.course1.cloudstorage.model.Form.CredentialForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.Form.NoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
-import com.udacity.jwdnd.course1.cloudstorage.service.CredentialService;
-import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
-import com.udacity.jwdnd.course1.cloudstorage.service.NoteService;
-import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
+import com.udacity.jwdnd.course1.cloudstorage.service.*;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -28,17 +26,19 @@ public class HomeController {
     private final CredentialService credentialService;
     private final NoteService noteService;
     private final UserService userService;
+    private final EncryptionService encryptionService;
 
     public HomeController(FileService fileService, CredentialService credentialService,
-                          NoteService noteService, UserService userService){
+                          NoteService noteService, UserService userService, EncryptionService encryptionService){
         this.fileService = fileService;
         this.credentialService = credentialService;
         this.noteService = noteService;
         this.userService = userService;
+        this.encryptionService = encryptionService;
     }
 
     @GetMapping("/home")
-    public String showHomePage(NoteForm noteForm, Model model){
+    public String showHomePage(NoteForm noteForm, CredentialForm credentialForm, Model model){
 
         User user = userService.getLoggedInUser();
         if(user == null){
@@ -49,10 +49,39 @@ public class HomeController {
             model.addAttribute("activeTab", "files");
         }
 
+        model.addAttribute("encryptionService", encryptionService);
         model.addAttribute("files", fileService.getAllFiles(user.getUserId()));
         model.addAttribute("notes", noteService.getAllNotes(user.getUserId()));
+        model.addAttribute("credentials", credentialService.getAllCredentialByUserId(user.getUserId()));
 
         return "home";
+    }
+
+    @PostMapping("/credential/save")
+    public String saveCredential(CredentialForm credentialForm, RedirectAttributes redirectAttributes){
+        User user = userService.getLoggedInUser();
+
+        if(credentialForm.getCredentialId() != null){
+            credentialService.updateCredentialByUserIdAndCredentialId(user.getUserId(), credentialForm);
+        }else {
+            credentialService.saveCredential(user.getUserId(), credentialForm);
+        }
+
+        redirectAttributes.addFlashAttribute("activeTab", "creds");
+
+        return "redirect:/home";
+    }
+
+    @GetMapping("/credential/delete/{credentialId}")
+    public String deleteCredential(@PathVariable String credentialId,
+                                   RedirectAttributes redirectAttributes){
+        User user = userService.getLoggedInUser();
+
+        credentialService.deleteCredential(user.getUserId(), Integer.valueOf(credentialId));
+
+        redirectAttributes.addFlashAttribute("activeTab", "creds");
+
+        return "redirect:/home";
     }
 
     @PostMapping("/note/save")

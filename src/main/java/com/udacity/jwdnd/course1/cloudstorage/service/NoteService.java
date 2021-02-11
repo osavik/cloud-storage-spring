@@ -20,7 +20,7 @@ public class NoteService {
         return noteMapper.getAllNotesByUserId(userId);
     }
 
-    public int saveNote(NoteForm noteForm, Integer userId){
+    public int saveNote(Integer userId, NoteForm noteForm){
         Note note = new Note(null, noteForm.getNoteTitle(), noteForm.getNoteDescription(), userId);
 
         return noteMapper.insertNote(note);
@@ -28,6 +28,11 @@ public class NoteService {
 
     public void deleteNoteByUserIdAndNoteId(Integer userId, Integer noteId){
         noteMapper.deleteNoteByNoteIdAndUserId(userId, noteId);
+    }
+
+    public int updateNoteByUserIdAndNoteId(Integer userId, NoteForm noteForm){
+        return noteMapper.updateNoteByNoteIdAndUserId(userId, noteForm.getNoteId(),
+                noteForm.getNoteTitle(), noteForm.getNoteDescription());
     }
 
 }

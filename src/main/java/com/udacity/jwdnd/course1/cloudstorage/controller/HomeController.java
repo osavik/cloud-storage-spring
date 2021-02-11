@@ -62,8 +62,11 @@ public class HomeController {
         System.out.println("noteId = " + noteForm.getNoteId() + " notetitle = " +noteForm.getNoteTitle() +
                 " note descr = " + noteForm.getNoteDescription());
 
-
-        noteService.saveNote(noteForm, user.getUserId());
+        if (noteForm.getNoteId()!= null){
+            noteService.updateNoteByUserIdAndNoteId(user.getUserId(), noteForm);
+        }else{
+            noteService.saveNote(user.getUserId(), noteForm);
+        }
 
         redirectAttributes.addFlashAttribute("activeTab", "notes");
 

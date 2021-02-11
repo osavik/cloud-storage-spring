@@ -33,6 +33,6 @@ public interface NoteMapper {
     // update Note by noteId
     @Update("UPDATE NOTES SET notetitle = #{noteTitle}, notedescription =#{noteDescription} WHERE" +
             " noteid = #{noteId} AND userid = #{userId}")
-    Integer updateNoteByNoteIdAndUserId(Integer userId, Integer noteId, String noteTitle, String noteDescription);
+    int updateNoteByNoteIdAndUserId(Integer userId, Integer noteId, String noteTitle, String noteDescription);
 
 }

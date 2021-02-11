@@ -1,6 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
+import com.udacity.jwdnd.course1.cloudstorage.model.Form.NoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.service.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class HomeController {
@@ -36,21 +38,53 @@ public class HomeController {
     }
 
     @GetMapping("/home")
-    public String showHomePage(Model model){
+    public String showHomePage(NoteForm noteForm, Model model){
 
         User user = userService.getLoggedInUser();
         if(user == null){
             return "login";
         }
 
+        if (model.getAttribute("activeTab") == null){
+            model.addAttribute("activeTab", "files");
+        }
+
         model.addAttribute("files", fileService.getAllFiles(user.getUserId()));
+        model.addAttribute("notes", noteService.getAllNotes(user.getUserId()));
 
         return "home";
     }
 
+    @PostMapping("/note/save")
+    public String saveNote(NoteForm noteForm, RedirectAttributes redirectAttributes){
+        User user = userService.getLoggedInUser();
+
+        System.out.println("noteId = " + noteForm.getNoteId() + " notetitle = " +noteForm.getNoteTitle() +
+                " note descr = " + noteForm.getNoteDescription());
+
+
+        noteService.saveNote(noteForm, user.getUserId());
+
+        redirectAttributes.addFlashAttribute("activeTab", "notes");
+
+        return "redirect:/home";
+    }
+
+    @GetMapping("/note/delete/{noteId}")
+    public String deleteNote(@PathVariable String noteId, NoteForm noteForm, RedirectAttributes redirectAttributes){
+        User user = userService.getLoggedInUser();
+
+        noteService.deleteNoteByUserIdAndNoteId(user.getUserId(), Integer.valueOf(noteId));
+
+        redirectAttributes.addFlashAttribute("activeTab", "notes");
+
+        return "redirect:/home";
+    }
+
+
     // TODO handle file size limit
     @PostMapping("/file/upload")
-    public String uploadFile(@RequestParam("fileUpload") MultipartFile file, Model model){
+    public String uploadFile(@RequestParam("fileUpload") MultipartFile file, RedirectAttributes redirectAttributes, NoteForm noteForm){
         boolean successfulUpload = false;
 
         // session is expired: go back to login page
@@ -60,10 +94,10 @@ public class HomeController {
         }
 
         if (file.isEmpty()){
-            model.addAttribute("file_upload_hint", true);
+            redirectAttributes.addFlashAttribute("file_upload_hint", true);
         }else{
             if (!fileService.isFileNameUniqueForUser(user.getUserId(), file.getOriginalFilename())){
-                model.addAttribute("file_upload_error_name", true);
+                redirectAttributes.addFlashAttribute("file_upload_error_name", true);
             }else{
                 try {
                     int rowsAdded = fileService.saveFile(file, user.getUserId());
@@ -71,23 +105,22 @@ public class HomeController {
                         successfulUpload = true;
                     }
                 } catch (Exception e) {
-                    model.addAttribute("file_upload_error", true);
+                    redirectAttributes.addFlashAttribute("file_upload_error", true);
                     e.printStackTrace();
                 }
             }
         }
 
-        model.addAttribute("file_upload_successful", successfulUpload);
-        model.addAttribute("files", fileService.getAllFiles(user.getUserId()));
+        redirectAttributes.addFlashAttribute("file_upload_successful", successfulUpload);
+        redirectAttributes.addFlashAttribute("activeTab", "files");
 
-        return "home";
+        return "redirect:/home";
     }
 
     @GetMapping("/file/delete/{fileId}")
     public String deleteFile(@PathVariable String fileId){
-        System.out.println("file id to delete = " + fileId);
-
         User user = userService.getLoggedInUser();
+
         fileService.deleteFileByFileIdAndUserId(user.getUserId(), Integer.valueOf(fileId));
 
         return "redirect:/home";
@@ -112,8 +145,5 @@ public class HomeController {
             return null;
         }
     }
-
-
-
 
 }

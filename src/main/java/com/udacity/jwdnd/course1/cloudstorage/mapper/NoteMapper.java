@@ -16,22 +16,23 @@ public interface NoteMapper {
 
     // get Note by noteName & userId
     @Select("SELECT * FROM NOTES WHERE notename = #{noteName} AND userid = #{userId}")
-    Note getNoteByNotenameAndUserId(String noteName, Integer userId);
+    Note getNoteByNotenameAndUserId(Integer userId, String noteName);
 
     // get Note by noteId
-    @Select("SELECT * FROM NOTES WHERE noteid = #{noteId}")
-    Note getNoteByNoteId(Integer noteId);
+    @Select("SELECT * FROM NOTES WHERE noteid = #{noteId} AND userid = #{userId}")
+    Note getNoteByNoteIdAndUserId(Integer userId, Integer noteId);
 
     // get all Notes by userId
-    @Select("SELECT * FROM NOTES WHERE userid = {userId}")
+    @Select("SELECT * FROM NOTES WHERE userid = #{userId}")
     List<Note> getAllNotesByUserId(Integer userId);
 
     // delete Note by noteId
-    @Delete("DELETE FROM NOTES WHERE noteid = #{noteId}")
-    void deleteNoteByNoteId(Integer noteId);
+    @Delete("DELETE FROM NOTES WHERE noteid = #{noteId} AND userid = #{userId}")
+    void deleteNoteByNoteIdAndUserId(Integer userId, Integer noteId);
 
     // update Note by noteId
-    @Update("UPDATE NOTES SET notetitle = #{noteTitle}, notedescription =#{noteDescription} WHERE noteid = #{noteId}")
-    Integer updateNoteByNoteid(Integer noteId, String noteTitle, String noteDescription);
+    @Update("UPDATE NOTES SET notetitle = #{noteTitle}, notedescription =#{noteDescription} WHERE" +
+            " noteid = #{noteId} AND userid = #{userId}")
+    Integer updateNoteByNoteIdAndUserId(Integer userId, Integer noteId, String noteTitle, String noteDescription);
 
 }

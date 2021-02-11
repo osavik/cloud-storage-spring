@@ -44,11 +44,15 @@ public class CredentialService {
 
     public int updateCredentialByUserIdAndCredentialId(Integer userId, CredentialForm credentialForm){
 
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[16];
+        random.nextBytes(key);
+        String encodedKey = Base64.getEncoder().encodeToString(key);
+        String encryptedPassword = encryptionService.encryptValue(credentialForm.getPassword(), encodedKey);
 
-        Credential credential = null;
 
-        return credentialMapper.updateCredentialByCredentialIdAndUserId(userId, credential.getCredentialId(),
-                credential.getUrl(), credential.getUsername(), credential.getKey(), credential.getPassword());
+        return credentialMapper.updateCredentialByCredentialIdAndUserId(userId, credentialForm.getCredentialId(),
+                credentialForm.getUrl(), credentialForm.getUsername(), encodedKey, encryptedPassword);
     }
 
 

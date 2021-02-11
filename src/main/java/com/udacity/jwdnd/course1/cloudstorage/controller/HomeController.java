@@ -88,9 +88,6 @@ public class HomeController {
     public String saveNote(NoteForm noteForm, RedirectAttributes redirectAttributes){
         User user = userService.getLoggedInUser();
 
-        System.out.println("noteId = " + noteForm.getNoteId() + " notetitle = " +noteForm.getNoteTitle() +
-                " note descr = " + noteForm.getNoteDescription());
-
         if (noteForm.getNoteId()!= null){
             noteService.updateNoteByUserIdAndNoteId(user.getUserId(), noteForm);
         }else{
@@ -161,8 +158,6 @@ public class HomeController {
 
     @GetMapping("/file/view/{fileId}")
     public ResponseEntity<Resource> getFile(@PathVariable String fileId){
-        System.out.println("file id to view = " + fileId);
-
         User user = userService.getLoggedInUser();
         File file = fileService.getFileByUserIdAndFileId(user.getUserId(), Integer.valueOf(fileId));
 

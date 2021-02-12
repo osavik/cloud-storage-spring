@@ -158,8 +158,6 @@ public class HomeController {
 
     @GetMapping("/file/view/{fileId}")
     public ResponseEntity<Resource> getFile(@PathVariable String fileId){
-        System.out.println("file id to view = " + fileId);
-
         User user = userService.getLoggedInUser();
         File file = fileService.getFileByUserIdAndFileId(user.getUserId(), Integer.valueOf(fileId));
 

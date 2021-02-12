@@ -88,9 +88,6 @@ public class HomeController {
     public String saveNote(NoteForm noteForm, RedirectAttributes redirectAttributes){
         User user = userService.getLoggedInUser();
 
-        System.out.println("noteId = " + noteForm.getNoteId() + " notetitle = " +noteForm.getNoteTitle() +
-                " note descr = " + noteForm.getNoteDescription());
-
         if (noteForm.getNoteId()!= null){
             noteService.updateNoteByUserIdAndNoteId(user.getUserId(), noteForm);
         }else{

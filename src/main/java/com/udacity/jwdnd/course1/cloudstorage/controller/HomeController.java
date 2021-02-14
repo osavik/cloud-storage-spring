@@ -63,8 +63,10 @@ public class HomeController {
 
         if(credentialForm.getCredentialId() != null){
             credentialService.updateCredentialByUserIdAndCredentialId(user.getUserId(), credentialForm);
+            redirectAttributes.addFlashAttribute("cred_edit_hint", true);
         }else {
             credentialService.saveCredential(user.getUserId(), credentialForm);
+            redirectAttributes.addFlashAttribute("cred_create_hint", true);
         }
 
         redirectAttributes.addFlashAttribute("activeTab", "creds");
@@ -80,6 +82,7 @@ public class HomeController {
         credentialService.deleteCredential(user.getUserId(), Integer.valueOf(credentialId));
 
         redirectAttributes.addFlashAttribute("activeTab", "creds");
+        redirectAttributes.addFlashAttribute("cred_delete_hint", true);
 
         return "redirect:/home";
     }
@@ -90,8 +93,10 @@ public class HomeController {
 
         if (noteForm.getNoteId()!= null){
             noteService.updateNoteByUserIdAndNoteId(user.getUserId(), noteForm);
+            redirectAttributes.addFlashAttribute("note_edit_hint", true);
         }else{
             noteService.saveNote(user.getUserId(), noteForm);
+            redirectAttributes.addFlashAttribute("note_create_hint", true);
         }
 
         redirectAttributes.addFlashAttribute("activeTab", "notes");
@@ -106,6 +111,7 @@ public class HomeController {
         noteService.deleteNoteByUserIdAndNoteId(user.getUserId(), Integer.valueOf(noteId));
 
         redirectAttributes.addFlashAttribute("activeTab", "notes");
+        redirectAttributes.addFlashAttribute("note_delete_hint", true);
 
         return "redirect:/home";
     }
@@ -147,10 +153,11 @@ public class HomeController {
     }
 
     @GetMapping("/file/delete/{fileId}")
-    public String deleteFile(@PathVariable String fileId){
+    public String deleteFile(@PathVariable String fileId, RedirectAttributes redirectAttributes){
         User user = userService.getLoggedInUser();
 
         fileService.deleteFileByFileIdAndUserId(user.getUserId(), Integer.valueOf(fileId));
+        redirectAttributes.addFlashAttribute("file_delete_hint", true);
 
         return "redirect:/home";
     }
